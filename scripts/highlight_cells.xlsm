@@ -1,0 +1,59 @@
+' Function to convert hex color to RGB
+Function HexToRGB(HexColor As String) As Variant
+    Dim Red As Long
+    Dim Green As Long
+    Dim Blue As Long
+    
+    ' Remove # if present
+    If Left(HexColor, 1) = "#" Then
+        HexColor = Right(HexColor, Len(HexColor) - 1)
+    End If
+    
+    ' Convert hex to RGB
+    Red = CLng("&H" & Mid(HexColor, 1, 2))
+    Green = CLng("&H" & Mid(HexColor, 3, 2))
+    Blue = CLng("&H" & Mid(HexColor, 5, 2))
+    
+    HexToRGB = Array(Red, Green, Blue)
+End Function
+
+Sub HighlightAllCellsWithContent()
+    MsgBox "Active sheet name: " & ActiveSheet.Name
+    Dim cell As Range
+    Dim selectedRange As Range
+    Dim HexColor As String
+    Dim RGB_Values As Variant
+    Dim cellCount As Integer
+    
+    cellCount = 0
+    
+    ' Ask user for the color code
+    HexColor = InputBox("Enter the hex color code (e.g., #FF0000 for red):", "Color Selection")
+    
+    ' Exit if canceled
+    If HexColor = "" Then Exit Sub
+    
+    ' Set the selected range (or use active sheet if nothing selected)
+    If TypeName(Selection) = "Range" Then
+        Set selectedRange = Selection
+        MsgBox "Selection range: " & selectedRange.Address
+    Else
+        Set selectedRange = ActiveSheet.UsedRange
+        MsgBox "Using entire sheet: " & selectedRange.Address
+    End If
+    
+    ' Convert hex to RGB
+    RGB_Values = HexToRGB(HexColor)
+    
+    ' Loop through each cell in the selected range
+    For Each cell In selectedRange
+        ' Check if cell contains ANY content (not empty)
+        If Not IsEmpty(cell.Value) Then
+            ' Highlight the cell with the specified color
+            cell.Interior.Color = RGB(RGB_Values(0), RGB_Values(1), RGB_Values(2))
+            cellCount = cellCount + 1
+        End If
+    Next cell
+    
+    MsgBox "Highlighting complete! Highlighted " & cellCount & " cells.", vbInformation
+End Sub
